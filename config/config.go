@@ -15,6 +15,12 @@ type Config struct {
 	AwsEndpoint string
 	ServerPort  string
 	MikeAPIKey  string
+	SQS         SQSConfig
+	AwsRegion   string
+}
+
+type SQSConfig struct {
+	FixturesProcessorQueueURL string
 }
 
 type FrontendConfig struct {
@@ -58,6 +64,10 @@ func GetConfig() *Config {
 				URL: getEnvOrDefault("FRONTEND_URL", "http://localhost:3000"),
 			},
 			MikeAPIKey: getEnvOrDefault("MIKE_API_KEY", "http://localhost:9000/v1"),
+			SQS: SQSConfig{
+				FixturesProcessorQueueURL: getEnvOrDefault("FIXTURES_PROCESSOR_QUEUE_URL", "http://localhost:4566/000000000000/fixtures-processor-queue"),
+			},
+			AwsRegion: getEnvOrDefault("AWS_REGION", "us-west-2"),
 		}
 
 		switch strings.ToLower(os.Getenv("ENV")) {
