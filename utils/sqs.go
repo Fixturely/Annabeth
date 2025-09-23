@@ -26,7 +26,7 @@ func init() {
 		awsConfig.WithHTTPClient(awsHttp.NewBuildableClient().WithTimeout(10*time.Second)),
 	)
 	if err != nil {
-		log.Println("failed to load default config: %v", err)
+		log.Printf("failed to load default config: %v", err)
 		return
 	}
 	// add the endpoint to the config if it's set (for localstack)

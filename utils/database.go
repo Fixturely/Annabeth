@@ -68,7 +68,7 @@ func initDatabase() (*bun.DB, error) {
 	// Ensure the database can connect.
 	_, err := db.Exec("SELECT 1")
 	if err != nil {
-		log.Fatalf("error initializing database, unable to SELECT 1: %v", err)
+		return nil, fmt.Errorf("error initializing database, unable to SELECT 1: %w", err)
 	}
 
 	return db, nil
