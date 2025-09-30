@@ -1,32 +1,40 @@
 package fixtureingestor
 
-import "github.com/uptrace/bun"
+import (
+	"encoding/json"
+	"fmt"
+	"time"
 
-const (
-	defaultRetries = 10
+	sqsTypes "github.com/aws/aws-sdk-go-v2/service/sqs/types"
 )
 
-func NewFixtureIngestorWorker(
-	queueURL string,
-	database *bun.DB,
-	sqsClient SQSClient,
-	stopChan chan struct{},
-	maxRetries int,
-) (*FixtureIngestorWorker, error) {
-	if maxRetries == 0 {
-		maxRetries = defaultRetries
-	}
-
-	return &FixtureIngestorWorker{
-		QueueURL:   queueURL,
-		Database:   database,
-		SQSClient:  sqsClient,
-		StopChan:   stopChan,
-		maxRetries: maxRetries,
-	}, nil
-
+type Fixture struct {
+	Id       int64
+	SportId  int64
+	TeamId1  int64
+	TeamId2  int64
+	DateTime time.Time
+	Details  json.RawMessage
 }
 
-func (w *FixtureIngestorWorker) Start() {
+func (w *FixtureIngestorWorker) ValidateFixture(fixture *Fixture) error {
+	if fixture.Details == nil {
+		return fmt.Errorf("fixture details are required")
+	}
+	return nil
+}
 
+func (w *FixtureIngestorWorker) handleOrder(msg *sqsTypes.Message) error {
+	fixture := Fixture{}
+	err := json.Unmarshal([]byte(*msg.Body), &fixture)
+	if err != nil {
+		return fmt.Errorf("error unmarshalling message: %v", err)
+	}
+
+	err = w.ValidateFixture(&fixture)
+	if err != nil {
+		return fmt.Errorf("error validating fixture: %v", err)
+	}
+
+	return nil
 }

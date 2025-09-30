@@ -9,15 +9,15 @@ import (
 
 type SQSClient interface {
 	ReceiveMessage(ctx context.Context, params *sqs.ReceiveMessageInput, optFns ...func(*sqs.Options)) (*sqs.ReceiveMessageOutput, error)
-	DeleteMessageBatch(ctx context.Context, params *sqs.DeleteMessageBatchInput, optFns ...func(*sqs.Options)) (*sqs.DeleteMessageBatchOutput, error)
+	DeleteMessage(ctx context.Context, params *sqs.DeleteMessageInput, optFns ...func(*sqs.Options)) (*sqs.DeleteMessageOutput, error)
 }
 
 type FixtureIngestorWorker struct {
-	QueueURL string
-	Database *bun.DB
+	SQSQueueURL string
+	Database    *bun.DB
 	// LocalCache utils.LocalCacheInterface[int64]
 	SQSClient  SQSClient
 	StopChan   chan struct{}
 	maxRetries int
-	batchSize  int
+	Processing bool
 }
